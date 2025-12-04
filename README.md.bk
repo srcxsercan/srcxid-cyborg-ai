@@ -1,8 +1,8 @@
-# SRCX SRCXID CYBORG AI AI
+# SRCX Blueprint AI
 
 **Autonomous infrastructure intelligence engine for the SRCX global fintech ecosystem.**
 
-SRCXID CYBORG AI AI analyzes 105+ repositories, generates infrastructure blueprints, orchestrates deployments, and powers the SRCX satellite network.
+Blueprint AI analyzes 105+ repositories, generates infrastructure blueprints, orchestrates deployments, and powers the SRCX satellite network.
 
 ---
 
@@ -11,7 +11,7 @@ SRCXID CYBORG AI AI analyzes 105+ repositories, generates infrastructure bluepri
 ### ✅ Repository Intelligence
 - Scans all SRCX repositories
 - Extracts API endpoints, services, Dockerfiles, Compose files, Makefiles
-- Generates `srcxid-cyborg-ai.json` metadata for each repo
+- Generates `blueprint.json` metadata for each repo
 
 ### ✅ Dependency Graph Engine
 - Maps service-to-service communication
@@ -68,7 +68,7 @@ ui/
 docs/
   architecture.md
   satellite.md
-  srcxid-cyborg-ai-engine.md
+  blueprint-engine.md
   warp-code.md
 ```
 
@@ -76,7 +76,7 @@ docs/
 
 ## 🧠 Vision
 
-SRCXID CYBORG AI AI is the autonomous brain of the SRCX fintech empire:
+Blueprint AI is the autonomous brain of the SRCX fintech empire:
 
 - One command deploys the entire ecosystem  
 - Every repo becomes self-describing  
