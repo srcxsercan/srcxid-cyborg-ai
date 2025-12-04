@@ -1,8 +1,8 @@
-# SRCX SRCXID CYBORG AI AI
+# SRCXID CYBORG AI
 
 **Autonomous infrastructure intelligence engine for the SRCX global fintech ecosystem.**
 
-SRCXID CYBORG AI AI analyzes 105+ repositories, generates infrastructure blueprints, orchestrates deployments, and powers the SRCX satellite network.
+SRCXID CYBORG AI analyzes 105+ repositories, generates infrastructure blueprints, orchestrates deployments, and powers the SRCX satellite network.
 
 ---
 
@@ -76,7 +76,7 @@ docs/
 
 ## 🧠 Vision
 
-SRCXID CYBORG AI AI is the autonomous brain of the SRCX fintech empire:
+SRCXID CYBORG AI is the autonomous brain of the SRCX fintech empire:
 
 - One command deploys the entire ecosystem  
 - Every repo becomes self-describing  
