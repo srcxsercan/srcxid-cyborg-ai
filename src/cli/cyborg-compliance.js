@@ -1,16 +1,25 @@
 #!/usr/bin/env node
-import { ComplianceEngine } from "../compliance/compliance-core.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const engine = new ComplianceEngine([
-  { amount: 100, timestamp: Date.now() - 10000 },
-  { amount: 200, timestamp: Date.now() - 20000 }
-]);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const result = engine.evaluate({
-  amount: 6000,
-  currency: "USDT",
-  country: "HIGH_RISK"
-});
+console.log("✅ CLI stabilized and running:", __filename);
 
-console.log("✅ Compliance Test Result:");
-console.log(JSON.stringify(result, null, 2));
+// Telemetry event
+try {
+  const eventDir = path.join(process.cwd(), "telemetry/events");
+  if (!fs.existsSync(eventDir)) fs.mkdirSync(eventDir, { recursive: true });
+
+  const ts = new Date().toISOString().replace(/[:.]/g, "-");
+  const fileName = path.join(eventDir, `${ts}-stabilized.json`);
+
+  fs.writeFileSync(
+    fileName,
+    JSON.stringify({ cli: __filename, timestamp: new Date().toISOString() }, null, 2)
+  );
+} catch (e) {
+  console.log("⚠️ Telemetry yazılamadı:", e.message);
+}

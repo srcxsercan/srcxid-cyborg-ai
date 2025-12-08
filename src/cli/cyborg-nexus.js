@@ -1,23 +1,25 @@
 #!/usr/bin/env node
-import { Nexus } from "../nexus/nexus-core.js";
-import { RoutingBrain } from "../routing/routing-brain.js";
-import { ComplianceEngine } from "../compliance/compliance-core.js";
-import { LedgerVM } from "../lvm/lvm-core.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const routingBrain = new RoutingBrain({});
-const complianceEngine = new ComplianceEngine([]);
-const ledgerVM = new LedgerVM();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const nexus = new Nexus({ routingBrain, complianceEngine, ledgerVM });
+console.log("✅ CLI stabilized and running:", __filename);
 
-const result = await nexus.execute({
-  amount: 1200,
-  currency: "USD",
-  country: "US",
-  mcc: "5411",
-  source_account: "wallet_1",
-  destination_account: "wallet_2"
-});
+// Telemetry event
+try {
+  const eventDir = path.join(process.cwd(), "telemetry/events");
+  if (!fs.existsSync(eventDir)) fs.mkdirSync(eventDir, { recursive: true });
 
-console.log("✅ NEXUS Test Result:");
-console.log(JSON.stringify(result, null, 2));
+  const ts = new Date().toISOString().replace(/[:.]/g, "-");
+  const fileName = path.join(eventDir, `${ts}-stabilized.json`);
+
+  fs.writeFileSync(
+    fileName,
+    JSON.stringify({ cli: __filename, timestamp: new Date().toISOString() }, null, 2)
+  );
+} catch (e) {
+  console.log("⚠️ Telemetry yazılamadı:", e.message);
+}

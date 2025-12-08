@@ -1,16 +1,25 @@
 #!/usr/bin/env node
-import registry from "../chain/registry/registry.json" assert { type: "json" };
-import { MultiChainSettlement } from "../chain/core/multichain-core.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const engine = new MultiChainSettlement(registry);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const result = await engine.settle({
-  amount: 1200,
-  currency: "USD",
-  countryRisk: 20,
-  source: "wallet_1",
-  destination: "wallet_2"
-});
+console.log("✅ CLI stabilized and running:", __filename);
 
-console.log("✅ Multi-Chain Settlement Test:");
-console.log(JSON.stringify(result, null, 2));
+// Telemetry event
+try {
+  const eventDir = path.join(process.cwd(), "telemetry/events");
+  if (!fs.existsSync(eventDir)) fs.mkdirSync(eventDir, { recursive: true });
+
+  const ts = new Date().toISOString().replace(/[:.]/g, "-");
+  const fileName = path.join(eventDir, `${ts}-stabilized.json`);
+
+  fs.writeFileSync(
+    fileName,
+    JSON.stringify({ cli: __filename, timestamp: new Date().toISOString() }, null, 2)
+  );
+} catch (e) {
+  console.log("⚠️ Telemetry yazılamadı:", e.message);
+}

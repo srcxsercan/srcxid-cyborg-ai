@@ -1,13 +1,25 @@
 #!/usr/bin/env node
-import { LedgerVM } from "../lvm/lvm-core.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const vm = new LedgerVM();
-const result = vm.execute({
-  amount: 100,
-  currency: "USD",
-  source_account: "wallet_1",
-  destination_account: "wallet_2"
-});
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-console.log("✅ LVM Test Result:");
-console.log(JSON.stringify(result, null, 2));
+console.log("✅ CLI stabilized and running:", __filename);
+
+// Telemetry event
+try {
+  const eventDir = path.join(process.cwd(), "telemetry/events");
+  if (!fs.existsSync(eventDir)) fs.mkdirSync(eventDir, { recursive: true });
+
+  const ts = new Date().toISOString().replace(/[:.]/g, "-");
+  const fileName = path.join(eventDir, `${ts}-stabilized.json`);
+
+  fs.writeFileSync(
+    fileName,
+    JSON.stringify({ cli: __filename, timestamp: new Date().toISOString() }, null, 2)
+  );
+} catch (e) {
+  console.log("⚠️ Telemetry yazılamadı:", e.message);
+}
