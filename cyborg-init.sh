@@ -1,32 +1,29 @@
 #!/bin/bash
 
-echo "🚀 CYBORG-OS: SRCX Global Bootstrap Başlatılıyor..."
+echo "⚡ CYBORG-OS v2: Autobot Forge başlatılıyor..."
 
-# Klasör yapısı
-mkdir -p src/core
-mkdir -p src/domain
-mkdir -p src/adapters/providers
-mkdir -p src/adapters/bank-rails
-mkdir -p src/events
-mkdir -p src/utils
+# === KLASÖR YAPISI ===
+mkdir -p src/{core,domain,events,utils,cli}
+mkdir -p src/adapters/{providers,bank-rails}
+mkdir -p tests/{unit,integration}
 mkdir -p docs
+mkdir -p .greptile
 
-# README
+# === README ===
 cat << 'R1' > README.md
 # SRCX CYBORG-OS
 
 Global fintech orchestrator + multi-currency ledger + event-driven payment engine.
 R1
 
-# .gitignore
+# === .gitignore ===
 cat << 'G1' > .gitignore
 node_modules/
 .env
 .DS_Store
 G1
 
-# Greptile config
-mkdir -p .greptile
+# === GREPTILE CONFIG ===
 cat << 'C1' > .greptile/context.md
 # SRCX CYBORG-OS — Global Autobot Configuration
 
@@ -77,4 +74,72 @@ payment_settled
 - Suggest folder structure fixes
 C1
 
-echo "✅ CYBORG-OS bootstrap tamamlandı!"
+# === PROVIDER TEMPLATE ===
+cat << 'P1' > src/adapters/providers/provider-template.js
+export class ProviderTemplate {
+  async authorize(payload) {}
+  async capture(payload) {}
+  async sale(payload) {}
+  async refund(payload) {}
+  async payout(payload) {}
+}
+P1
+
+# === BANK RAIL TEMPLATE ===
+cat << 'B1' > src/adapters/bank-rails/bank-rail-template.js
+export class BankRailTemplate {
+  async openAccount(payload) {}
+  async sendPayment(payload) {}
+  async receiveNotification(payload) {}
+  async getStatement(payload) {}
+}
+B1
+
+# === EVENT EMITTER ===
+cat << 'E1' > src/events/emitter.js
+export function emitEvent(name, data) {
+  return {
+    event: name,
+    timestamp: Date.now(),
+    correlation_id: data?.correlation_id || crypto.randomUUID(),
+    payload: data
+  }
+}
+E1
+
+# === LEDGER ENTRY GENERATOR ===
+cat << 'L1' > src/core/ledger-entry.js
+export function createLedgerEntry({ account, amount, type, correlation_id }) {
+  return {
+    account,
+    amount,
+    type,
+    correlation_id,
+    timestamp: Date.now(),
+    immutable: true
+  }
+}
+L1
+
+# === CLI ===
+cat << 'CLI' > src/cli/cyborg.js
+#!/usr/bin/env node
+
+console.log("⚡ CYBORG-OS CLI aktif");
+console.log("Komutlar:");
+console.log("  cyborg event <name>");
+console.log("  cyborg ledger <account> <amount>");
+CLI
+
+chmod +x src/cli/cyborg.js
+
+# === TEST SKELETON ===
+cat << 'T1' > tests/unit/sample.test.js
+describe("Sample Test", () => {
+  it("should run", () => {
+    expect(true).toBe(true);
+  });
+});
+T1
+
+echo "✅ CYBORG-OS v2 Autobot Forge tamamlandı!"
