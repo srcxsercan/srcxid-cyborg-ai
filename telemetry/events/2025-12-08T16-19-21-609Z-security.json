@@ -1,0 +1,62 @@
+{
+  "type": "security_alert",
+  "timestamp": "2025-12-08T16:19:21.610Z",
+  "issues": [
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-about.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-autopilot.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-chain.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-compliance.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-fix.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-guardian.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-lvm.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-mesh.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-nexus.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-quantum.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-status-board.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-telemetry-log.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg-telemetry-report.js"
+    },
+    {
+      "type": "unknown_cli",
+      "file": "cyborg.js"
+    }
+  ]
+}
