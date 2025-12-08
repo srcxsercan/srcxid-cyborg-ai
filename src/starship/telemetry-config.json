@@ -1,0 +1,17 @@
+{
+  "sinks": {
+    "file": {
+      "enabled": true,
+      "path": "telemetry/events"
+    }
+  },
+  "services": [
+    "nexus",
+    "mesh",
+    "lvm",
+    "compliance",
+    "multichain",
+    "quantum",
+    "orchestrator"
+  ]
+}

@@ -1,3 +1,12 @@
+#!/bin/bash
+
+echo "🔧 CYBORG-OS v16: Autopilot CLI düzeltme başlatılıyor..."
+
+TARGET="src/cli/cyborg-autopilot.js"
+
+mkdir -p src/cli
+
+cat << 'JS' > $TARGET
 #!/usr/bin/env node
 import fs from "fs";
 import path from "path";
@@ -127,3 +136,8 @@ console.log("🤖 Starship Autopilot");
 console.log("Environment:", env);
 console.log("Target:", target);
 console.log("Generated:", generatedPath);
+JS
+
+chmod +x $TARGET
+
+echo "✅ Autopilot CLI başarıyla düzeltildi!"
