@@ -10,5 +10,17 @@
       "mcc": "5732"
     },
     "provider": "PROV-STRIPE"
+  },
+  {
+    "id": "ROUTE-TX-ROUTE-TEST",
+    "timestamp": "2025-12-08T17:12:09.062Z",
+    "tx": {
+      "id": "TX-ROUTE-TEST",
+      "amount": 42,
+      "currency": "USD",
+      "country": "US",
+      "mcc": "5732"
+    },
+    "provider": "PROV-STRIPE"
   }
 ]
