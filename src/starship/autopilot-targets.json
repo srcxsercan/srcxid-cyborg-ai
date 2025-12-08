@@ -1,0 +1,4 @@
+{
+  "targets": ["docker-compose", "k8s"],
+  "default_target": "docker-compose"
+}
