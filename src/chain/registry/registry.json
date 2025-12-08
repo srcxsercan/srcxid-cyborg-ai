@@ -1,0 +1,9 @@
+{
+  "chains": {
+    "ethereum": { "type": "L1", "risk": 20, "priority": 1 },
+    "polygon": { "type": "L2", "risk": 10, "priority": 2 },
+    "arbitrum": { "type": "L2", "risk": 15, "priority": 3 },
+    "solana": { "type": "L1", "risk": 25, "priority": 4 },
+    "tron": { "type": "L1", "risk": 30, "priority": 5 }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "fiat_to_chain": "ethereum",
+    "high_risk_country": "tron",
+    "low_fee_preferred": "polygon",
+    "fallback_chain": "arbitrum"
+  }
+}
