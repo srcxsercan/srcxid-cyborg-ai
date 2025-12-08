@@ -1,0 +1,10 @@
+{
+  "node-local.json": {
+    "node": "node-local",
+    "timestamp": 1765212421984,
+    "data": {
+      "heartbeat": "2025-12-08T16:47:01.984Z",
+      "hash": "97fccf9be8e2cfba"
+    }
+  }
+}

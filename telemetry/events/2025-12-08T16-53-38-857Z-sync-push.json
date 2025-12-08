@@ -1,0 +1,13 @@
+{
+  "type": "sync_push",
+  "node": "node-local",
+  "timestamp": "2025-12-08T16:53:38.857Z",
+  "state": {
+    "node": "node-local",
+    "timestamp": 1765212818856,
+    "data": {
+      "heartbeat": "2025-12-08T16:53:38.856Z",
+      "hash": "dddd4d35bcf88af8"
+    }
+  }
+}
