@@ -1,0 +1,20 @@
+{
+  "type": "tx_captured",
+  "tx": {
+    "id": "TX-2025-12-08T17-10-40-587Z",
+    "amount": 10,
+    "currency": "USD",
+    "country": "US",
+    "status": "CAPTURED",
+    "steps": [
+      {
+        "step": "authorize",
+        "ts": "2025-12-08T17:10:40.588Z"
+      },
+      {
+        "step": "capture",
+        "ts": "2025-12-08T17:10:40.588Z"
+      }
+    ]
+  }
+}

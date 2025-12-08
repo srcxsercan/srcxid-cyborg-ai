@@ -1,0 +1,23 @@
+[
+  {
+    "id": "PROV-STRIPE",
+    "name": "Stripe",
+    "countries": ["US", "CA", "GB"],
+    "currencies": ["USD", "CAD", "GBP"],
+    "riskScore": 20
+  },
+  {
+    "id": "PROV-ADYEN",
+    "name": "Adyen",
+    "countries": ["NL", "DE", "FR", "GB"],
+    "currencies": ["EUR", "GBP"],
+    "riskScore": 25
+  },
+  {
+    "id": "PROV-LOCAL-TR",
+    "name": "Local Bank TR",
+    "countries": ["TR"],
+    "currencies": ["TRY"],
+    "riskScore": 15
+  }
+]
