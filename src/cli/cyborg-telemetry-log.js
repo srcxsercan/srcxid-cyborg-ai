@@ -36,11 +36,6 @@ try {
   process.exit(1);
 }
 
-if (!cfg.sinks.file?.enabled) {
-  console.error("❌ File sink not enabled in telemetry-config.");
-  process.exit(1);
-}
-
 const sinkDir = path.join(process.cwd(), cfg.sinks.file.path);
 if (!fs.existsSync(sinkDir)) fs.mkdirSync(sinkDir, { recursive: true });
 

@@ -32,9 +32,7 @@ for (const file of files) {
     const svc = data.service || "unknown";
     perService[svc] = (perService[svc] || 0) + 1;
     total += 1;
-  } catch {
-    // skip broken files silently
-  }
+  } catch {}
 }
 
 console.log("📊 Starship Telemetry Report");
