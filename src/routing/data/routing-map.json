@@ -1,0 +1,12 @@
+{
+  "mcc": {
+    "5411": ["Stripe", "Adyen"],
+    "5812": ["Adyen", "Checkout"],
+    "7995": ["HighRiskProvider"]
+  },
+  "country": {
+    "US": ["Stripe", "Square"],
+    "EU": ["Adyen", "Checkout"],
+    "TR": ["LocalBankRail"]
+  }
+}
