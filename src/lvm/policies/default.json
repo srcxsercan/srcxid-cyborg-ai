@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "validate": [
+      "amount > 0",
+      "currency != null",
+      "source_account != destination_account"
+    ],
+    "posting": [
+      {
+        "type": "debit",
+        "account": "source_account",
+        "amount": "amount"
+      },
+      {
+        "type": "credit",
+        "account": "destination_account",
+        "amount": "amount"
+      }
+    ],
+    "settlement": [
+      "timestamp = now"
+    ]
+  }
+}
