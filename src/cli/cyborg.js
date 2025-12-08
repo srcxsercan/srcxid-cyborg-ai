@@ -17,3 +17,8 @@ if (cmd === "bankrail") {
   fs.writeFileSync(\`src/adapters/bank-rails/\${name}-bankrail.js\`, code);
   console.log("✅ Bank rail oluşturuldu:", name);
 }
+
+if (cmd === "orchestrator") {
+  fs.copyFileSync("src/orchestrator/core-orchestrator.js", \`src/orchestrator/\${name}-orchestrator.js\`);
+  console.log("✅ Orchestrator oluşturuldu:", name);
+}
