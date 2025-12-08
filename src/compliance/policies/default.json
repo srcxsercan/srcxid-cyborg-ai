@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "velocity": {
+      "max_amount_per_minute": 5000,
+      "max_transactions_per_hour": 20
+    },
+    "anomaly": {
+      "sudden_spike_threshold": 3.0
+    },
+    "patterns": [
+      "amount > 10000 && country == 'HIGH_RISK'",
+      "currency == 'USDT' && amount > 5000"
+    ]
+  }
+}
