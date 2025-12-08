@@ -1,0 +1,24 @@
+{
+  "type": "tx_settled",
+  "tx": {
+    "id": "TX-2025-12-08T17-19-55-124Z",
+    "amount": 10,
+    "currency": "USD",
+    "country": "US",
+    "status": "SETTLED",
+    "steps": [
+      {
+        "step": "authorize",
+        "ts": "2025-12-08T17:19:55.126Z"
+      },
+      {
+        "step": "capture",
+        "ts": "2025-12-08T17:19:55.126Z"
+      },
+      {
+        "step": "settle",
+        "ts": "2025-12-08T17:19:55.126Z"
+      }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "type": "decision",
+  "timestamp": "2025-12-08T17:19:55.162Z",
+  "risk": 100,
+  "decision": "DENY",
+  "quantumOverride": false
+}

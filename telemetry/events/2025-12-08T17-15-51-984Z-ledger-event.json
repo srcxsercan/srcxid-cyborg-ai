@@ -1,0 +1,8 @@
+{
+  "type": "ledger_journal_posted",
+  "timestamp": "2025-12-08T17:15:51.984Z",
+  "amount": 100,
+  "currency": "USD",
+  "debit": "ACC-1000",
+  "credit": "ACC-EXTERNAL"
+}

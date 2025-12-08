@@ -3,12 +3,12 @@
     "id": "ACC-1000",
     "name": "SRCX Master Settlement",
     "currency": "USD",
-    "balance": 200
+    "balance": 400
   },
   {
     "id": "ACC-EXTERNAL",
     "name": "ACC-EXTERNAL",
     "currency": "USD",
-    "balance": -200
+    "balance": -400
   }
 ]

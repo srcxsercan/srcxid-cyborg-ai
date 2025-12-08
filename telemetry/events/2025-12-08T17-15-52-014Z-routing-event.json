@@ -1,0 +1,26 @@
+{
+  "type": "routing_decision",
+  "timestamp": "2025-12-08T17:15:52.014Z",
+  "tx": {
+    "id": "TX-ROUTE-TEST",
+    "amount": 42,
+    "currency": "USD",
+    "country": "US",
+    "mcc": "5732"
+  },
+  "provider": {
+    "id": "PROV-STRIPE",
+    "name": "Stripe",
+    "countries": [
+      "US",
+      "CA",
+      "GB"
+    ],
+    "currencies": [
+      "USD",
+      "CAD",
+      "GBP"
+    ],
+    "riskScore": 20
+  }
+}

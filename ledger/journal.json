@@ -20,5 +20,27 @@
     "meta": {
       "reason": "test_credit"
     }
+  },
+  {
+    "id": "JNL-2025-12-08T17-15-51-982Z",
+    "timestamp": "2025-12-08T17:15:51.982Z",
+    "debit": "ACC-1000",
+    "credit": "ACC-EXTERNAL",
+    "amount": 100,
+    "currency": "USD",
+    "meta": {
+      "reason": "test_credit"
+    }
+  },
+  {
+    "id": "JNL-2025-12-08T17-19-55-054Z",
+    "timestamp": "2025-12-08T17:19:55.054Z",
+    "debit": "ACC-1000",
+    "credit": "ACC-EXTERNAL",
+    "amount": 100,
+    "currency": "USD",
+    "meta": {
+      "reason": "test_credit"
+    }
   }
 ]
