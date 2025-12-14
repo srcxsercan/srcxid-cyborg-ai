@@ -1,0 +1,221 @@
+name: Release Model Artifacts
+
+on:
+  workflow_run:
+    workflows: ["Automatic Retraining on Drift Detection"]
+    types:
+      - completed
+    branches:
+      - main
+      - automation/continuous-training
+
+  workflow_dispatch:
+    inputs:
+      model_path:
+        description: 'Path to model artifacts to release'
+        required: false
+        type: string
+        default: 'models'
+      version:
+        description: 'Model version tag'
+        required: false
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # For creating releases
+      actions: write   # For artifact upload/download
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Download trained model artifacts
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: trained-model-${{ github.event.workflow_run.id }}
+          path: models/
+
+      - name: Generate model version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="v$(date +%Y%m%d-%H%M%S)"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Model version: $VERSION"
+
+      - name: Create release package
+        id: package
+        run: |
+          mkdir -p release
+          
+          # Package model files
+          tar -czf release/model-${{ steps.version.outputs.version }}.tar.gz \
+            -C models .
+          
+          # Create manifest
+          cat > release/manifest.json <<EOF
+          {
+            "version": "${{ steps.version.outputs.version }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "commit": "${{ github.sha }}",
+            "workflow_run_id": "${{ github.run_id }}",
+            "repository": "${{ github.repository }}"
+          }
+          EOF
+          
+          echo "Release package created"
+          ls -lh release/
+
+      - name: Upload release artifacts to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-release-${{ steps.version.outputs.version }}
+          path: release/
+          retention-days: 90
+
+      - name: Check S3 configuration
+        id: check_s3
+        run: |
+          if [ -n "${{ secrets.AWS_ACCESS_KEY_ID }}" ] && [ -n "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ] && [ -n "${{ secrets.S3_BUCKET }}" ]; then
+            echo "s3_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "s3_enabled=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload to S3 (if configured)
+        if: steps.check_s3.outputs.s3_enabled == 'true'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          pip install awscli
+          
+          # Upload to S3
+          aws s3 cp release/model-${VERSION}.tar.gz \
+            s3://${S3_BUCKET}/models/releases/${VERSION}/model.tar.gz
+          
+          aws s3 cp release/manifest.json \
+            s3://${S3_BUCKET}/models/releases/${VERSION}/manifest.json
+          
+          # Update latest pointer
+          echo "${VERSION}" | aws s3 cp - \
+            s3://${S3_BUCKET}/models/releases/latest.txt
+          
+          echo "Model uploaded to S3: s3://${S3_BUCKET}/models/releases/${VERSION}/"
+
+      - name: Check MLflow configuration
+        id: check_mlflow
+        run: |
+          if [ -n "${{ secrets.MLFLOW_TRACKING_URI }}" ]; then
+            echo "mlflow_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "mlflow_enabled=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload to MLflow (if configured)
+        if: steps.check_mlflow.outputs.mlflow_enabled == 'true'
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          pip install mlflow boto3 torch
+          
+          python - <<EOF
+          import mlflow
+          import json
+          from pathlib import Path
+          
+          # Load manifest
+          with open('release/manifest.json') as f:
+              manifest = json.load(f)
+          
+          # Register model in MLflow
+          mlflow.set_experiment("srcx-blueprint-ai-releases")
+          
+          with mlflow.start_run():
+              mlflow.log_artifact('release/model-${{ steps.version.outputs.version }}.tar.gz')
+              mlflow.log_artifact('release/manifest.json')
+              
+              mlflow.log_params({
+                  'version': manifest['version'],
+                  'commit': manifest['commit']
+              })
+              
+              mlflow.set_tag('release', 'true')
+              mlflow.set_tag('version', manifest['version'])
+          
+          print("Model registered in MLflow")
+          EOF
+
+      - name: Create GitHub Release (optional)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.version != ''
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Model Release ${{ steps.version.outputs.version }}
+          body: |
+            Automated model release from continuous learning pipeline.
+            
+            **Version:** ${{ steps.version.outputs.version }}
+            **Commit:** ${{ github.sha }}
+            **Workflow Run:** ${{ github.run_id }}
+          files: |
+            release/model-${{ steps.version.outputs.version }}.tar.gz
+            release/manifest.json
+          draft: false
+          prerelease: false
+
+      - name: Summary
+        run: |
+          echo "### 📦 Model Release Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Model artifacts have been packaged and uploaded." >> $GITHUB_STEP_SUMMARY
+
+      - name: Check Slack configuration
+        id: check_slack
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            echo "slack_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "slack_enabled=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send notification (if configured)
+        if: steps.check_slack.outputs.slack_enabled == 'true'
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          curl -X POST $SLACK_WEBHOOK \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"text\": \"📦 Model Release ${VERSION}\",
+              \"blocks\": [
+                {
+                  \"type\": \"section\",
+                  \"text\": {
+                    \"type\": \"mrkdwn\",
+                    \"text\": \"*Model Release ${VERSION}*\nNew model version is available for deployment.\"
+                  }
+                }
+              ]
+            }"
