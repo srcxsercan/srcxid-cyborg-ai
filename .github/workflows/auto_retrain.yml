@@ -16,6 +16,9 @@ on:
 jobs:
   detect-drift:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write  # For artifact upload/download
     outputs:
       drift_detected: ${{ steps.drift.outputs.drift_detected }}
       
@@ -134,6 +137,9 @@ jobs:
   retrain:
     needs: detect-drift
     if: needs.detect-drift.outputs.drift_detected == 'true' || github.event.inputs.force_retrain == 'true'
+    permissions:
+      contents: read
+      actions: write
     uses: ./.github/workflows/reusable/train-reusable.yml
     with:
       data_path: 'data/training'
@@ -152,6 +158,8 @@ jobs:
     needs: [detect-drift, retrain]
     if: always() && needs.retrain.result == 'success'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - name: Training completion summary

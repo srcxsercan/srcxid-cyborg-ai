@@ -52,6 +52,9 @@ on:
 jobs:
   train:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write  # For artifact upload/download
     outputs:
       model_path: ${{ steps.training.outputs.model_path }}
       metrics: ${{ steps.training.outputs.metrics }}
