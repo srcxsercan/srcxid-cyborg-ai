@@ -1,0 +1,136 @@
+name: Reusable Training Workflow
+
+on:
+  workflow_call:
+    inputs:
+      data_path:
+        description: 'Path to training data'
+        required: true
+        type: string
+      epochs:
+        description: 'Number of training epochs'
+        required: false
+        type: number
+        default: 10
+      use_mlflow:
+        description: 'Enable MLflow tracking'
+        required: false
+        type: boolean
+        default: false
+      model_out_dir:
+        description: 'Output directory for trained model'
+        required: false
+        type: string
+        default: 'models'
+      batch_size:
+        description: 'Training batch size'
+        required: false
+        type: number
+        default: 32
+      learning_rate:
+        description: 'Learning rate'
+        required: false
+        type: number
+        default: 0.001
+    secrets:
+      MLFLOW_TRACKING_URI:
+        required: false
+      AWS_ACCESS_KEY_ID:
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+      S3_BUCKET:
+        required: false
+    outputs:
+      model_path:
+        description: 'Path to the trained model'
+        value: ${{ jobs.train.outputs.model_path }}
+      training_metrics:
+        description: 'Training metrics JSON'
+        value: ${{ jobs.train.outputs.metrics }}
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    outputs:
+      model_path: ${{ steps.training.outputs.model_path }}
+      metrics: ${{ steps.training.outputs.metrics }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install transformers datasets scikit-learn numpy pandas
+          if [ "${{ inputs.use_mlflow }}" == "true" ]; then
+            pip install mlflow boto3
+          fi
+
+      - name: Configure MLflow (if enabled)
+        if: inputs.use_mlflow == true
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          echo "MLflow tracking configured"
+          echo "MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}" >> $GITHUB_ENV
+
+      - name: Run training
+        id: training
+        env:
+          DATA_PATH: ${{ inputs.data_path }}
+          EPOCHS: ${{ inputs.epochs }}
+          MODEL_OUT_DIR: ${{ inputs.model_out_dir }}
+          BATCH_SIZE: ${{ inputs.batch_size }}
+          LEARNING_RATE: ${{ inputs.learning_rate }}
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+        run: |
+          mkdir -p $MODEL_OUT_DIR
+          python scripts/train.py \
+            --data-path "$DATA_PATH" \
+            --epochs $EPOCHS \
+            --batch-size $BATCH_SIZE \
+            --learning-rate $LEARNING_RATE \
+            --output-dir "$MODEL_OUT_DIR"
+          
+          echo "model_path=$MODEL_OUT_DIR/model.pt" >> $GITHUB_OUTPUT
+          if [ -f "$MODEL_OUT_DIR/metrics.json" ]; then
+            echo "metrics=$(cat $MODEL_OUT_DIR/metrics.json)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload model artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model-${{ github.run_id }}
+          path: ${{ inputs.model_out_dir }}
+          retention-days: 30
+
+      - name: Upload to S3 (if configured)
+        if: secrets.AWS_ACCESS_KEY_ID != '' && secrets.S3_BUCKET != ''
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+        run: |
+          pip install awscli
+          aws s3 sync ${{ inputs.model_out_dir }} s3://${S3_BUCKET}/models/$(date +%Y%m%d-%H%M%S)/
+
+      - name: Summary
+        run: |
+          echo "### Training Complete 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Epochs**: ${{ inputs.epochs }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Batch Size**: ${{ inputs.batch_size }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Learning Rate**: ${{ inputs.learning_rate }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Model Path**: ${{ steps.training.outputs.model_path }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **MLflow Enabled**: ${{ inputs.use_mlflow }}" >> $GITHUB_STEP_SUMMARY
