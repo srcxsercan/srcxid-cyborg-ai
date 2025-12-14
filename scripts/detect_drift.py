@@ -13,6 +13,9 @@ from datetime import datetime
 
 import numpy as np
 
+# Constants
+EPSILON = 1e-10  # Small value for numerical stability
+
 
 def load_dataset_snapshot(snapshot_path):
     """Load dataset snapshot metadata"""
@@ -88,12 +91,12 @@ def calculate_distribution_drift(dist1, dist2):
     kl_qp = 0.0
     
     for key in all_keys:
-        p1 = prob1.get(key, 1e-10)
-        p2 = prob2.get(key, 1e-10)
+        p1 = prob1.get(key, EPSILON)
+        p2 = prob2.get(key, EPSILON)
         
         # Add small epsilon for numerical stability
-        p1 = max(p1, 1e-10)
-        p2 = max(p2, 1e-10)
+        p1 = max(p1, EPSILON)
+        p2 = max(p2, EPSILON)
         
         kl_pq += p1 * np.log(p1 / p2)
         kl_qp += p2 * np.log(p2 / p1)
