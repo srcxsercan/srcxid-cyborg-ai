@@ -115,8 +115,17 @@ jobs:
           path: ${{ inputs.model_out_dir }}
           retention-days: 30
 
+      - name: Check S3 configuration
+        id: check_s3
+        run: |
+          if [ -n "${{ secrets.AWS_ACCESS_KEY_ID }}" ] && [ -n "${{ secrets.S3_BUCKET }}" ]; then
+            echo "s3_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "s3_enabled=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Upload to S3 (if configured)
-        if: secrets.AWS_ACCESS_KEY_ID != '' && secrets.S3_BUCKET != ''
+        if: steps.check_s3.outputs.s3_enabled == 'true'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

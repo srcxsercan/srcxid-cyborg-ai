@@ -71,7 +71,7 @@ def create_dummy_snapshot(output_path, num_samples=1000, num_classes=10):
 
 
 def calculate_distribution_drift(dist1, dist2):
-    """Calculate KL divergence between two class distributions"""
+    """Calculate symmetric KL divergence (Jensen-Shannon divergence) between two class distributions"""
     # Normalize distributions
     total1 = sum(dist1.values())
     total2 = sum(dist2.values())
@@ -82,24 +82,42 @@ def calculate_distribution_drift(dist1, dist2):
     # Ensure same keys
     all_keys = set(prob1.keys()) | set(prob2.keys())
     
-    # Calculate KL divergence
-    kl_div = 0.0
+    # Calculate symmetric KL divergence (average of both directions)
+    # KL(P||Q) + KL(Q||P) / 2
+    kl_pq = 0.0
+    kl_qp = 0.0
+    
     for key in all_keys:
         p1 = prob1.get(key, 1e-10)
         p2 = prob2.get(key, 1e-10)
-        kl_div += p1 * np.log(p1 / p2)
+        
+        # Add small epsilon for numerical stability
+        p1 = max(p1, 1e-10)
+        p2 = max(p2, 1e-10)
+        
+        kl_pq += p1 * np.log(p1 / p2)
+        kl_qp += p2 * np.log(p2 / p1)
     
-    return kl_div
+    # Return symmetric KL divergence
+    return (kl_pq + kl_qp) / 2.0
 
 
 def calculate_statistical_drift(stats1, stats2):
-    """Calculate drift in statistical measures"""
+    """Calculate drift in statistical measures with robust handling of small values"""
     mean_diff = abs(stats1['mean_length'] - stats2['mean_length'])
     std_diff = abs(stats1['std_length'] - stats2['std_length'])
     
-    # Normalized difference
-    mean_drift = mean_diff / (stats1['mean_length'] + 1e-10)
-    std_drift = std_diff / (stats1['std_length'] + 1e-10)
+    # Use relative change only if baseline is meaningful (>1)
+    # Otherwise use absolute change
+    if stats1['mean_length'] > 1.0:
+        mean_drift = mean_diff / stats1['mean_length']
+    else:
+        mean_drift = mean_diff
+    
+    if stats1['std_length'] > 1.0:
+        std_drift = std_diff / stats1['std_length']
+    else:
+        std_drift = std_diff
     
     return {
         'mean_drift': mean_drift,

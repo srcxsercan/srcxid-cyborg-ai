@@ -17,26 +17,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
 
-
-class SimpleModel(nn.Module):
-    """Simple neural network model - must match train.py"""
-    
-    def __init__(self, input_dim=768, hidden_dim=256, output_dim=10):
-        super(SimpleModel, self).__init__()
-        self.fc1 = nn.Linear(input_dim, hidden_dim)
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.3)
-        self.fc2 = nn.Linear(hidden_dim, hidden_dim // 2)
-        self.fc3 = nn.Linear(hidden_dim // 2, output_dim)
-    
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-        x = self.fc2(x)
-        x = self.relu(x)
-        x = self.fc3(x)
-        return x
+from model import SimpleModel
 
 
 def load_new_data(data_path, batch_size=16):

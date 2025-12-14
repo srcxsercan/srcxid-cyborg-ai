@@ -83,8 +83,17 @@ jobs:
           path: release/
           retention-days: 90
 
+      - name: Check S3 configuration
+        id: check_s3
+        run: |
+          if [ -n "${{ secrets.AWS_ACCESS_KEY_ID }}" ] && [ -n "${{ secrets.S3_BUCKET }}" ]; then
+            echo "s3_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "s3_enabled=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Upload to S3 (if configured)
-        if: secrets.AWS_ACCESS_KEY_ID != '' && secrets.S3_BUCKET != ''
+        if: steps.check_s3.outputs.s3_enabled == 'true'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -106,8 +115,17 @@ jobs:
           
           echo "Model uploaded to S3: s3://${S3_BUCKET}/models/releases/${VERSION}/"
 
+      - name: Check MLflow configuration
+        id: check_mlflow
+        run: |
+          if [ -n "${{ secrets.MLFLOW_TRACKING_URI }}" ]; then
+            echo "mlflow_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "mlflow_enabled=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Upload to MLflow (if configured)
-        if: secrets.MLFLOW_TRACKING_URI != ''
+        if: steps.check_mlflow.outputs.mlflow_enabled == 'true'
         env:
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -169,8 +187,17 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Model artifacts have been packaged and uploaded." >> $GITHUB_STEP_SUMMARY
 
+      - name: Check Slack configuration
+        id: check_slack
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            echo "slack_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "slack_enabled=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Send notification (if configured)
-        if: secrets.SLACK_WEBHOOK != ''
+        if: steps.check_slack.outputs.slack_enabled == 'true'
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           VERSION: ${{ steps.version.outputs.version }}

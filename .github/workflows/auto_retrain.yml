@@ -101,8 +101,18 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Drift Report:** See artifacts for details" >> $GITHUB_STEP_SUMMARY
 
+      - name: Check Slack configuration
+        id: check_slack
+        if: steps.drift.outputs.drift_detected == 'true'
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            echo "slack_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "slack_enabled=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Send Slack notification (if configured)
-        if: steps.drift.outputs.drift_detected == 'true' && secrets.SLACK_WEBHOOK != ''
+        if: steps.check_slack.outputs.slack_enabled == 'true'
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
@@ -151,8 +161,17 @@ jobs:
           echo "Model has been retrained successfully." >> $GITHUB_STEP_SUMMARY
           echo "New model artifacts are available in the workflow artifacts." >> $GITHUB_STEP_SUMMARY
 
+      - name: Check Slack configuration
+        id: check_slack
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            echo "slack_enabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "slack_enabled=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Send success notification (if configured)
-        if: secrets.SLACK_WEBHOOK != ''
+        if: steps.check_slack.outputs.slack_enabled == 'true'
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
