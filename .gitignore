@@ -5,3 +5,7 @@ node_modules/
 *.tmp
 *.bak
 models/
+
+# ML training artifacts
+data/raw/
+data/processed/
